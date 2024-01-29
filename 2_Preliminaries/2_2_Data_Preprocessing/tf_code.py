@@ -20,4 +20,4 @@ X = tf.constant(inputs.to_numpy(dtype=float))
 y = tf.constant(targets.to_numpy(dtype=float))
 print(f"X: \n{X}, \ny: \n{y}")
 
-# Exersise not that much useful for me.
+# Exersises are not that much useful for me for this particular section.
