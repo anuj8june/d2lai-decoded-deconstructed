@@ -73,9 +73,9 @@ print(f"\nA: {A} | If A.T.T==A: {A==A.T.T}")
 # 2.Given two matrices and , show that sum and transposition commute
 A = torch.arange(6).reshape(2,3)
 B = torch.ones(2,3)
-sum_of_individual_tranpose = A.T + B.T
+sum_of_individual_transpose = A.T + B.T
 sum_first_then_transpose = (A+B).T
-print(f"\nA: {A} | B: {B} | Is sum of individual tranpose equal to sum first and then transpose: {sum_of_individual_tranpose==sum_first_then_transpose}")
+print(f"\nA: {A} | B: {B} | Is sum of individual tranpose equal to sum first and then transpose: {sum_of_individual_transpose==sum_first_then_transpose}")
 
 # 3. Given any square matrix A. Is A + A.T always symmetric?
 A = torch.arange(9).reshape(3,3)
