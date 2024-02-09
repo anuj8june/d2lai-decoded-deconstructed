@@ -20,3 +20,5 @@ print(f"\nInputs after nan fill: \n{inputs}")
 X = jnp.array(inputs.to_numpy(dtype=float))
 y = jnp.array(targets.to_numpy(dtype=float))
 print(f"X: \n{X}, \ny: \n{y}")
+
+# Exersises are not that much useful for me for this particular section.
