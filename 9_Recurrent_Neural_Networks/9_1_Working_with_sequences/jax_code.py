@@ -69,6 +69,18 @@ class DataLoader(object):
 
         batch = self.compile_batch(next_test_indices)
         return batch
+    
+
+    def sample_test_data(self, hop):
+        valid_idxs_list = []
+        self.train_indices_queue = self.train_indices.copy()
+        self.test_indices_queue = self.test_indices.copy()
+        for hop_num in range(int(self.data_size/hop)):
+            idx_value = hop_num*hop
+            if idx_value in self.train_indices_queue or idx_value in self.test_indices_queue:
+                valid_idxs_list.append(idx_value)
+        batch = self.compile_batch(valid_idxs_list)
+        return batch
 
 
 class LinearRegression(object):
@@ -103,7 +115,6 @@ class LinearRegression(object):
     def backpropagation(self, x_batch, y_true):
         batch_size = y_true.shape[0]
         self.optimize(x_batch, y_true, self.out, batch_size)
-        # print(f"\nwt: {self.weights} | \nbias: {self.bias} | \ngradw: {self.grad_w} | \ngradb: {self.grad_b}")
         self.weights = self.weights - self.learning_rate * self.grad_w
         self.bias = self.bias - self.learning_rate * self.grad_b
         return self.weights, self.bias, self.error
@@ -131,6 +142,20 @@ class LinearRegression(object):
         return self.out, self.error
 
 
+    def multi_step_prediction(self, batch, num_preds):
+        x_inp, y_gt, idxs = batch
+        indexes = list(np.array(idxs))
+        predictions = []
+        for num_pred in range(num_preds):
+            self.test(x_inp, y_gt)
+            if  num_pred > 0:
+                idxs += 1
+                indexes += list(np.array(idxs))
+            x_inp = jnp.concatenate((x_inp[:,1:], self.out.reshape(self.out.shape[0], -1)), axis=1)
+            predictions += list(np.array(self.out))
+        return predictions, indexes
+
+
 
 if __name__ == "__main__":
 
@@ -143,12 +168,13 @@ if __name__ == "__main__":
     time = np.arange(1, T+1, dtype=np.float32)
     x = np.sin(0.01 * time) + np.random.normal(loc=0.0, scale=1.0, 
                                                size=[T]) * 0.2
+    fig1 = plt.figure(1)
     plt.scatter(time, x, color="blue", label="data")
     
 
 
     ### Training
-    epochs = 100
+    epochs = 5
     lr = 0.005
     
     dl = DataLoader(X=x, y=time, tau=5, batch_size=16, train_test_split=0.5)
@@ -191,3 +217,21 @@ if __name__ == "__main__":
     plt.scatter(time_index_test, pred_test, color="red", label="pred_test")
     plt.legend() 
     plt.savefig("jax_data.jpg")
+    plt.close()
+
+
+    # Multistep prediction
+    # Sample data for 1, 4, 16, 64 step predcitions so that we get a even plot
+    step_preds = [1, 4, 16, 64]
+    step_preds_color = {1:"yellow", 4:"red", 16:"green", 64:"cyan"}
+    fig2 = plt.figure(2)
+    plt.scatter(time, x, color="blue", label="data")
+    for step_pred in step_preds:
+        print(f"Running for step pred: {step_pred}")
+        batch = dl.sample_test_data(hop=step_pred)
+        predictions, indexes = lr.multi_step_prediction(batch, step_pred)
+        plt.scatter(indexes, predictions, color=
+            f"{step_preds_color[step_pred]}", label=f"{step_pred}-step preds")
+    plt.legend()
+    plt.savefig("jax_step_pred.jpg")
+    plt.close()
