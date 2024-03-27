@@ -3,3 +3,4 @@ torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 pandas==2.2.0
 tensorflow==2.14.0
 matplotlib==3.8.2
+flax==0.8.2
